@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import java.util.ArrayList;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.ultimatumedia.autosmsresponder.MainActivity;
@@ -16,6 +17,8 @@ import com.ultimatumedia.autosmsresponder.MainActivity;
 public class SMSSender {
 
     public void sendSMS(Context context, String phoneNumber, String message) {
+        Log.i("INFO (Erik)", "Sending " + message + " To " + phoneNumber);
+
         /** Creating a pending intent which will be broadcasted when an sms message is successfully sent */
         PendingIntent piSent = PendingIntent.getBroadcast(context, 0, new Intent("com.ultimatumedia.sent") , 0);
 

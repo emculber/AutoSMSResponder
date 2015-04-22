@@ -1,19 +1,15 @@
 package com.ultimatumedia.autosmsresponder.ResponseTree;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsoluteLayout;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-import com.ultimatumedia.autosmsresponder.Database.dbHelper;
 import com.ultimatumedia.autosmsresponder.R;
-import com.ultimatumedia.autosmsresponder.SMS.SMSReceiver;
 
 public class ResponseTree extends Fragment {
     private FrameLayout frame;
@@ -21,7 +17,6 @@ public class ResponseTree extends Fragment {
     private Button editNode;
     private Button deleteNode;
     private ResponseTreeCanvas rst;
-    private dbHelper db;
 
     public ResponseTree() {
     }
@@ -37,7 +32,6 @@ public class ResponseTree extends Fragment {
 
         frame = (FrameLayout) view.findViewById(R.id.response_tree_frame);
 
-        db = new dbHelper(view.getContext());
         rst = new ResponseTreeCanvas(view.getContext());
         rst.rt = this;
         frame.addView(rst);

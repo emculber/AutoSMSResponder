@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.util.Size;
 
 import com.ultimatumedia.autosmsresponder.R;
+import com.ultimatumedia.autosmsresponder.SMS.SMSMessage;
 
 import org.w3c.dom.Text;
 
@@ -32,10 +33,17 @@ public class Node {
     int boundPadding;
     int selPadding;
 
-    String Condition = "";
-    String message = "";
+    public SMSMessage message;
+
+    public Node(Context context) {
+        init(context, 0, "<New Node>\n<Message>", 100, 100);
+    }
 
     public Node(Context context, int treeLevel, String text, int x, int y) {
+        init(context, treeLevel, text, x, y);
+    }
+
+    public void init(Context context, int treeLevel, String text, int x, int y) {
         level = treeLevel;
         selected = false;
         xStart = x;
@@ -73,10 +81,6 @@ public class Node {
         rectBounds.right = x + rectWidth + boundPadding;
         rectBounds.top = y - boundPadding;
         rectBounds.bottom = y + rectHeight + boundPadding;
-        //rectBounds.left = x;
-        //rectBounds.right = x + rectWidth;
-        //rectBounds.top = y;
-        //rectBounds.bottom = y + rectHeight;
 
         selBounds.left = rectBounds.left - selPadding;
         selBounds.right = rectBounds.right + selPadding;

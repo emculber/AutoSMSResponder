@@ -9,6 +9,11 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.ultimatumedia.autosmsresponder.Database.NumberDatasource;
+
+import java.util.ArrayList;
+import java.util.Date;
+
 public class SMSReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Bundle myBundle = intent.getExtras();
@@ -21,18 +26,34 @@ public class SMSReceiver extends BroadcastReceiver {
             if (pdus != null) {
                 messages = new SmsMessage[pdus.length];
 
+                Log.i("INFO (Erik)", "Message has been recived and is starting to process the data");
+
 
                 for (int i = 0; i < messages.length; i++) {
                     messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-                    strMessage += "SMS From: " + messages[i].getOriginatingAddress();
+
+                    String phoneNumber = messages[i].getOriginatingAddress();
+                    String messageBody = messages[i].getMessageBody();
+
+                    strMessage += "SMS From: " + phoneNumber;
                     strMessage += " : ";
-                    strMessage += messages[i].getMessageBody();
+                    strMessage += messageBody;
                     strMessage += "\n";
+                    Log.i("INFO (Erik)", strMessage);
 
                     //TODO:Here is where i need to check the conditions and all that for the person
-                    if (messages[i].getMessageBody().equalsIgnoreCase("Test")) {
+                    Log.i("INFO (Erik)", "Getting data from database for the number and the message");
+                    SMSGetData smsGetData = new SMSGetData();
+                    SMSMessage smsMessage = smsGetData.getData(context, phoneNumber, messageBody);
+
+                    Log.i("INFO (Erik)", "Checking to see if there is a message to send");
+                    if (smsMessage != null) {
+                        Log.i("INFO (Erik)", "There is a message to send");
                         SMSSender smsSender = new SMSSender();
-                        smsSender.sendSMS(context, messages[i].getOriginatingAddress(), "Success!!");
+                        smsMessage.updateTimeStamp(context);
+                        //smsSender.sendSMS(context, phoneNumber, smsMessage.message);
+                    }else {
+                        Log.i("INFO (Erik)", "There is not a message to send");
                     }
                 }
             }

@@ -2,11 +2,11 @@ package com.ultimatumedia.autosmsresponder.ResponseTree;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.ultimatumedia.autosmsresponder.Database.SMSMessageDatasource;
 
 import java.util.ArrayList;
 
@@ -14,6 +14,7 @@ public class ResponseTreeCanvas extends View {
     public ArrayList<Node> nodes;
     private int initXTouch = 0, initYTouch = 0;
     public ResponseTree rt;
+    private SMSMessageDatasource dataSource;
 
     public ResponseTreeCanvas(Context context) {
         super(context);
@@ -27,8 +28,17 @@ public class ResponseTreeCanvas extends View {
 
     public void init(Context context) {
         nodes = new ArrayList<Node>();
-        Node rootNode = new Node(context, 0, "<New Node>", 100, 100);
-        nodes.add(rootNode);
+        /*dataSource = new SMSMessageDatasource(context);
+        dataSource.open();
+        if(dataSource.getNodes().size() < 1) {
+            Node rootNode = new Node(context, 0, "<New Node>\n<Message>", 100, 100);
+            dataSource.create(rootNode);
+            nodes.add(rootNode);
+        }else{
+            nodes = dataSource.getNodes(context);
+        }
+
+        dataSource.close();*/
     }
 
     @Override
