@@ -6,11 +6,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.ultimatumedia.autosmsresponder.Database.NumberDatasource;
 import com.ultimatumedia.autosmsresponder.Database.SMSMessageDatasource;
+import com.ultimatumedia.autosmsresponder.MainActivity;
 import com.ultimatumedia.autosmsresponder.R;
 import com.ultimatumedia.autosmsresponder.SMS.PhoneNumber;
 import com.ultimatumedia.autosmsresponder.SMS.SMSMessage;
@@ -20,6 +22,8 @@ import java.util.ArrayList;
 public class NumberListFragment extends Fragment {
 
     private NumberDatasource dataSource;
+    ArrayList<PhoneNumber> numbers;
+    private MainActivity mainActivity;
 
     public NumberListFragment() {
     }
@@ -33,10 +37,10 @@ public class NumberListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_number_list, container, false);
 
-        ListView numberListView = (ListView) view.findViewById(R.id.numberList);
+        final ListView numberListView = (ListView) view.findViewById(R.id.numberList);
 
         Log.i("INFO (Erik)", "Checking for Test Values in database");
-        ArrayList<PhoneNumber> numbers = new ArrayList<PhoneNumber>();
+        numbers = new ArrayList<PhoneNumber>();
         dataSource = new NumberDatasource(view.getContext());
         dataSource.open();
         Log.i("INFO (Erik)", "Checking if there is anything in database");
@@ -81,6 +85,19 @@ public class NumberListFragment extends Fragment {
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_list_item_1, toStringNumber);
 
         numberListView.setAdapter(arrayAdapter);
+
+        numberListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String value = (String)parent.getItemAtPosition(position);
+                String[] split = value.split(" -- ");
+                dataSource.open();
+                PhoneNumber number = dataSource.getNumber(split[1]);
+                dataSource.close();
+                MainActivity.mainActivity.numberClicked(Long.toString(number.numberId));
+            }
+        });
+
         return view;
     }
 }
