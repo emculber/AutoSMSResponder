@@ -5,10 +5,12 @@ package com.ultimatumedia.autosmsresponder.SMS;
  */
 public class PhoneNumber {
     public long numberId = -1;
+    public String name = "";
     public String number = "";
+    public String active = "T";
 
     @Override
     public String toString() {
-        return numberId + " -- " +  number;
+        return numberId + " -- " + name + "--" +  number;
     }
 }

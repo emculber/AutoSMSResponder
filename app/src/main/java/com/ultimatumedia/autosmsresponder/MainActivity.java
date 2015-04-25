@@ -5,21 +5,28 @@ import android.app.FragmentTransaction;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.ContactsContract;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
+import com.ultimatumedia.autosmsresponder.DataInput.NewAutoMessage;
 import com.ultimatumedia.autosmsresponder.Database.NumberDatasource;
 import com.ultimatumedia.autosmsresponder.Displays.AutoTextsListView;
 import com.ultimatumedia.autosmsresponder.Displays.NumberListFragment;
 import com.ultimatumedia.autosmsresponder.ResponseTree.ResponseTree;
 import com.ultimatumedia.autosmsresponder.SMS.PhoneNumber;
+import com.ultimatumedia.autosmsresponder.Search.ClearableAutoCompleteTextView;
 
 import java.util.ArrayList;
 
@@ -28,9 +35,11 @@ public class MainActivity extends ActionBarActivity {
 
     public static MainActivity mainActivity;
     private ArrayList<String> Contancts;
-    private AutoCompleteTextView textView;
+    private ClearableAutoCompleteTextView searchBox;
     private NumberListFragment numberListFragment;
     private FragmentTransaction ft;
+    private boolean searchOpen = false;
+    private int backStackTrack = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,29 +57,74 @@ public class MainActivity extends ActionBarActivity {
         }
         phones.close();
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowCustomEnabled(true);
-        // actionBar.setDisplayShowTitleEnabled(false);
-        // actionBar.setIcon(R.drawable.ic_action_search);
+        ActionBar actionBar = getSupportActionBar(); // you can use ABS or the non-bc ActionBar
 
-        LayoutInflater inflator = (LayoutInflater) this
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflator.inflate(R.layout.actionbar, null);
+// what's mainly important here is DISPLAY_SHOW_CUSTOM. the rest is optional
+        //actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_USE_LOGO | ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_HOME_AS_UP);
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_TITLE | ActionBar.DISPLAY_SHOW_HOME);
+
+
+        LayoutInflater inflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // inflate the view that we created before
+        View v = inflater.inflate(R.layout.actionbar, null);
+        // the view that contains the search "magnifier" icon
+        // the view that contains the new clearable autocomplete text view
+        searchBox =  (ClearableAutoCompleteTextView) v.findViewById(R.id.search_box);
+
+        // start with the text view hidden in the action bar
+        searchBox.setVisibility(View.INVISIBLE);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Contancts);
+        searchBox.setAdapter(arrayAdapter);
+
+        searchBox.setOnClearListener(new ClearableAutoCompleteTextView.OnClearListener() {
+
+            @Override
+            public void onClear() {
+                toggleSearch(true);
+            }
+        });
+
+        searchBox.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String value = (String)parent.getItemAtPosition(position);
+                String[] split = value.split("--");
+                addNumber(split[0], split[1]);
+                toggleSearch(true);
+            }
+
+        });
 
         actionBar.setCustomView(v);
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_dropdown_item_1line, Contancts);
-        textView = (AutoCompleteTextView) v
-                .findViewById(R.id.editText1);
-        textView.setAdapter(adapter);
+        toggleSearch(true);
+        numberListView();
+        newAutoMessage();
+    }
 
 
-        ResponseTree responseTree = new ResponseTree();
-        numberListFragment = new NumberListFragment();
-        ft = getFragmentManager().beginTransaction();
-        ft.add(R.id.fragment_container, numberListFragment).commit();
+
+    protected void toggleSearch(boolean reset) {
+        ClearableAutoCompleteTextView searchBox = (ClearableAutoCompleteTextView) findViewById(R.id.search_box);
+        if (reset) {
+            // hide search box and show search icon
+            searchBox.setText("");
+            searchBox.setVisibility(View.GONE);
+            searchOpen = false;
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(searchBox.getWindowToken(), 0);
+        } else {
+            // hide search icon and show search box
+            searchBox.setVisibility(View.VISIBLE);
+            searchBox.requestFocus();
+            searchOpen = true;
+            // show the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(searchBox, InputMethodManager.SHOW_IMPLICIT);
+        }
+
     }
 
    @Override
@@ -84,37 +138,81 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_add) {
-            String unFormatedNumber = textView.getText().toString();
-            unFormatedNumber.replace("-", "");
-            unFormatedNumber.replace("(", "");
-            unFormatedNumber.replace(")", "");
-            if(unFormatedNumber.length() == 10) {
-                NumberDatasource datasource = new NumberDatasource(getApplicationContext());
-                datasource.open();
-                    for(PhoneNumber otherNumber : datasource.getNumbers()) {
-                        if(unFormatedNumber.equalsIgnoreCase(otherNumber.number)) {
-                            return true;
-                        }
-                    }
-                    PhoneNumber number = new PhoneNumber();
-                    number.number = unFormatedNumber;
-                datasource.create(number);
-                datasource.close();
+            if(backStackTrack == 0) {
+                toggleSearch(false);
+                if(searchOpen) {
+                    addNumber("", searchBox.getText().toString());
+                }
             }
-            Fragment currentFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
-            ft = getFragmentManager().beginTransaction();
-            ft.detach(currentFragment);
-            ft.attach(currentFragment);
-            ft.commit();
+            if(backStackTrack == 1) {
+
+            }
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    public void addNumber(String name, String pNumber) {
+        String unFormatedNumber = pNumber;
+        unFormatedNumber.replace("-", "");
+        unFormatedNumber.replace("(", "");
+        unFormatedNumber.replace(")", "");
+        if(unFormatedNumber.length() >= 7) {
+            NumberDatasource datasource = new NumberDatasource(getApplicationContext());
+            datasource.open();
+            for(PhoneNumber otherNumber : datasource.getNumbers()) {
+                if(unFormatedNumber.equalsIgnoreCase(otherNumber.number)) {
+                    return;
+                }
+            }
+            PhoneNumber number = new PhoneNumber();
+            number.name = name;
+            number.number = unFormatedNumber;
+            datasource.create(number);
+            datasource.close();
+        }
+        Fragment currentFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+        ft = getFragmentManager().beginTransaction();
+        ft.detach(currentFragment);
+        ft.attach(currentFragment);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
+    public void numberListView() {
+        numberListFragment = new NumberListFragment();
+        ft = getFragmentManager().beginTransaction();
+        if(backStackTrack != 1) {
+            ft.add(R.id.fragment_container, numberListFragment).commit();
+        }else {
+            ft.replace(R.id.fragment_container, numberListFragment).commit();
+        }
+        backStackTrack = 0;
+    }
+
     public void numberClicked(String numberID) {
         AutoTextsListView autoTextsListView = AutoTextsListView.newInstance(numberID);
         ft = getFragmentManager().beginTransaction();
-        ft.replace(R.id.fragment_container, autoTextsListView).addToBackStack(null).commit();
+        ft.replace(R.id.fragment_container, autoTextsListView);
+        ft.commit();
+        backStackTrack = 1;
+    }
+
+    public void newAutoMessage() {
+        NewAutoMessage newAutoMessage = new NewAutoMessage();
+        ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.fragment_container, newAutoMessage);
+        ft.commit();
+        backStackTrack = 2;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(backStackTrack == 1) {
+            numberListView();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

@@ -9,7 +9,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.ultimatumedia.autosmsresponder.Adapters.NumberListViewBaseAdapter;
 import com.ultimatumedia.autosmsresponder.Database.NumberDatasource;
 import com.ultimatumedia.autosmsresponder.Database.SMSMessageDatasource;
 import com.ultimatumedia.autosmsresponder.MainActivity;
@@ -81,18 +83,15 @@ public class NumberListFragment extends Fragment {
         for (PhoneNumber number : numbers) {
             toStringNumber.add(number.toString());
         }
-
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_list_item_1, toStringNumber);
-
-        numberListView.setAdapter(arrayAdapter);
+        NumberListViewBaseAdapter baseAdapter = new NumberListViewBaseAdapter(view.getContext());
+        numberListView.setAdapter(baseAdapter);
 
         numberListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String value = (String)parent.getItemAtPosition(position);
-                String[] split = value.split(" -- ");
+                TextView textView = (TextView) view.findViewById(R.id.numberListViewItemPhonenumber);
                 dataSource.open();
-                PhoneNumber number = dataSource.getNumber(split[1]);
+                PhoneNumber number = dataSource.getNumber(textView.getText().toString());
                 dataSource.close();
                 MainActivity.mainActivity.numberClicked(Long.toString(number.numberId));
             }

@@ -25,7 +25,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public static final String TABLE_NAME_NUMBERS = "numbers";
     public static final String NUMBER_ID = "id";
+    public static final String NUMBER_NAME = "name";
     public static final String NUMBER_NUMBER = "number";
+    public static final String NUMBER_ACTIVE = "active";
 
     private static final String SQL_CREATE_SMS_MESSAGE_TABLE =
             "CREATE TABLE " + TABLE_NAME_SMS_MESSAGE + " (" +
@@ -42,7 +44,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String SQL_CREATE_NUMBER_TABLE = "CREATE TABLE " + TABLE_NAME_NUMBERS + " (" +
             NUMBER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-            NUMBER_NUMBER + TEXT_TYPE +
+            NUMBER_NAME + TEXT_TYPE + COMMA_SEP +
+            NUMBER_NUMBER + TEXT_TYPE + COMMA_SEP +
+            NUMBER_ACTIVE + TEXT_TYPE +
                     " )";
 
     private static final String SQL_DELETE_NUMBER_TABLE =
