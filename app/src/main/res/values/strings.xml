@@ -14,7 +14,9 @@
     <string name="number_listview_item_text_place_holder">Unknown</string>
 
     <string-array name="new_auto_message_conditions_array">
-        <item>Driving</item>
+        <item>For Any Message</item>
+        <item>When Driving</item>
+        <item>When Message Contains</item>
         <item>Specific Time</item>
     </string-array>
 

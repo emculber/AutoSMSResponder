@@ -40,6 +40,8 @@ public class MainActivity extends ActionBarActivity {
     private FragmentTransaction ft;
     private boolean searchOpen = false;
     private int backStackTrack = 0;
+    private String lastNumebrId = "";
+    private NewAutoMessage newAutoMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +147,11 @@ public class MainActivity extends ActionBarActivity {
                 }
             }
             if(backStackTrack == 1) {
-
+                newAutoMessage();
+            }
+            if(backStackTrack == 2) {
+                newAutoMessage.addNewMessage();
+                numberClicked(lastNumebrId);
             }
             return true;
         }
@@ -192,6 +198,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void numberClicked(String numberID) {
+        lastNumebrId = numberID;
         AutoTextsListView autoTextsListView = AutoTextsListView.newInstance(numberID);
         ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, autoTextsListView);
@@ -200,7 +207,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void newAutoMessage() {
-        NewAutoMessage newAutoMessage = new NewAutoMessage();
+        newAutoMessage = new NewAutoMessage();
         ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_container, newAutoMessage);
         ft.commit();

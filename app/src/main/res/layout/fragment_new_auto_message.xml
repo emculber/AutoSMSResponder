@@ -1,24 +1,62 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/material_blue_grey_800"
-    tools:context="com.ultimatumedia.autosmsresponder.DataInput.NewAutoMessage">
+    tools:context="com.ultimatumedia.autosmsresponder.DataInput.NewAutoMessage"
+    android:id="@+id/NewMessageLayout">
 
 
-    <EditText
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:inputType="textMultiLine"
-        android:ems="10"
-        android:id="@+id/editText2"
-        android:layout_gravity="center_horizontal|top" />
+        android:layout_height="match_parent"
+        android:id="@+id/scrollView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" >
 
-    <Spinner
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/spinner"
-        android:layout_gravity="center"
-        android:entries="@array/new_auto_message_conditions_array" />
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
-</FrameLayout>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:inputType="textMultiLine"
+                android:ems="10"
+                android:id="@+id/NewMessageMessage"
+                android:layout_gravity="center_horizontal|top"
+                android:textColor="@color/white"
+                android:text="Please Enter A Message"/>
+
+            <Spinner
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NewMessageConditionMessageSpinner"
+                android:layout_gravity="center"
+                android:layout_below="@+id/NewMessageMessage"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/NewMessageMessageContain"
+                android:layout_below="@+id/NewMessageConditionMessageSpinner"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textColor="@color/white"
+                android:hint="Please Enter Condition" />
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Set Time"
+                android:id="@+id/NewMessageSpecificTime"
+                android:layout_below="@+id/NewMessageConditionMessageSpinner"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:gravity="center" />
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>
