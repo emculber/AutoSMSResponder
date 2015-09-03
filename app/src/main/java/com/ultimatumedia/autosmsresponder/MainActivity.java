@@ -102,7 +102,7 @@ public class MainActivity extends ActionBarActivity {
 
         toggleSearch(true);
         numberListView();
-        newAutoMessage();
+        //newAutoMessage();
     }
 
 
